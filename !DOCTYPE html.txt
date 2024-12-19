@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demand Curve Shift</title>
+    <style>
+        /* Basic style for the page */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        #factorSelection {
+            margin-bottom: 20px;
+        }
+
+        #demandCanvas {
+            border: 2px solid #000;
+            margin-top: 20px;
+            background-color: #fff;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #00bcd4;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #008c8d;
+        }
+    </style>
+</head>
+<body>
+
+    <div>
+        <div id="factorSelection">
+            <p>Select a factor that influences demand:</p>
+            <form id="factorForm">
+                <label><input type="radio" name="factor" value="increase in consumer income"> Increase in consumer income</label>
+                <label><input type="radio" name="factor" value="rise in substitute prices"> Rise in substitute prices</label>
+                <label><input type="radio" name="factor" value="favorable consumer preferences"> Favorable consumer preferences</label>
+                <label><input type="radio" name="factor" value="expectations of higher future prices"> Expectations of higher future prices</label>
+                <label><input type="radio" name="factor" value="fall in complementary prices"> Fall in complementary prices</label>
+                <label><input type="radio" name="factor" value="increase in population"> Increase in population</label>
+                <label><input type="radio" name="factor" value="decrease in consumer income"> Decrease in consumer income</label>
+                <label><input type="radio" name="factor" value="fall in substitute prices"> Fall in substitute prices</label>
+                <label><input type="radio" name="factor" value="unfavorable consumer preferences"> Unfavorable consumer preferences</label>
+                <label><input type="radio" name="factor" value="expectations of lower future prices"> Expectations of lower future prices</label>
+                <label><input type="radio" name="factor" value="rise in complementary prices"> Rise in complementary prices</label>
+                <label><input type="radio" name="factor" value="decrease in population"> Decrease in population</label>
+            </form>
+            <button id="updateCurve">Update Curve</button>
+        </div>
+
+        <canvas id="demandCanvas" width="400" height="400"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("demandCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Create a gradient background
+        function drawBackground() {
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, "#e0f7fa"); // Light blue
+            gradient.addColorStop(1, "#80deea"); // Teal
+
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Draw gridlines
+        function drawGridlines() {
+            ctx.strokeStyle = "#b2ebf2"; // Light teal
+            ctx.lineWidth = 0.5;
+
+            // Vertical gridlines
+            for (let x = 50; x <= 350; x += 30) {
+                ctx.beginPath();
+                ctx.moveTo(x, 50);
+                ctx.lineTo(x, 350);
+                ctx.stroke();
+            }
+
+            // Horizontal gridlines
+            for (let y = 50; y <= 350; y += 30) {
+                ctx.beginPath();
+                ctx.moveTo(50, y);
+                ctx.lineTo(350, y);
+                ctx.stroke();
+            }
+        }
+
+        // Draw axes
+        function drawAxes() {
+            ctx.beginPath();
+
+            // Axes
+            ctx.moveTo(50, 350); // Vertical axis
+            ctx.lineTo(50, 50);
+            ctx.moveTo(50, 350); // Horizontal axis
+            ctx.lineTo(350, 350);
+
+            ctx.strokeStyle = "#000";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Labels
+            ctx.font = "14px Arial";
+            ctx.fillStyle = "#000";
+            ctx.fillText("Price (P)", 20, 60);
+            ctx.fillText("Quantity (Q)", 330, 370);
+        }
+
+        // Draw demand curve
+        function drawDemandCurve(label, shiftDirection = null) {
+            ctx.beginPath();
+
+            // Base coordinates for D0
+            let startX = 70;
+            let startY = 300;
+            let endX = 300;
+            let endY = 100;
+
+            // Adjust coordinates for shifts
+            if (label === "D1") {
+                if (shiftDirection === "right") {
+                    startX += 30;
+                    endX += 30;
+                } else if (shiftDirection === "left") {
+                    startX -= 30;
+                    endX -= 30;
+                }
+            }
+
+            // Draw the curve
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.strokeStyle = label === "D0" ? "blue" : "red";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Label the curve
+            ctx.font = "16px Arial";
+            ctx.fillStyle = label === "D0" ? "blue" : "red";
+            ctx.fillText(label, endX + 5, endY + 5);
+        }
+
+        // Event listener for button
+        document.getElementById("updateCurve").addEventListener("click", () => {
+            const selectedOption = document.querySelector('input[name="factor"]:checked');
+
+            if (!selectedOption) {
+                alert("Please select a factor!");
+                return;
+            }
+
+            const selectedValue = selectedOption.value.toLowerCase();
+
+            // Define conditions for shifts
+            const rightShiftFactors = [
+                "increase in consumer income",
+                "rise in substitute prices",
+                "favorable consumer preferences",
+                "expectations of higher future prices",
+                "fall in complementary prices",
+                "increase in population"
+            ];
+
+            const leftShiftFactors = [
+                "decrease in consumer income",
+                "fall in substitute prices",
+                "unfavorable consumer preferences",
+                "expectations of lower future prices",
+                "rise in complementary prices",
+                "decrease in population"
+            ];
+
+            // Determine shift direction
+            const shiftDirection = rightShiftFactors.includes(selectedValue)
+                ? "right"
+                : leftShiftFactors.includes(selectedValue)
+                ? "left"
+                : null;
+
+            // Draw curves based on the shift
+            drawBackground(); // Refresh background
+            drawGridlines(); // Refresh gridlines
+            drawAxes(); // Reset canvas with axes
+            drawDemandCurve("D0"); // Original curve
+            if (shiftDirection) {
+                drawDemandCurve("D1", shiftDirection); // Shifted curve
+                alert(`The demand curve shifted to the ${shiftDirection.toUpperCase()} based on your selection.`);
+            } else {
+                alert("No shift detected.");
+            }
+        });
+
+        // Initial rendering
+        drawBackground();
+        drawGridlines();
+        drawAxes();
+        drawDemandCurve("D0");
+    </script>
+</body>
+</html>
